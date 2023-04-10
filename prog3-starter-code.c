@@ -1,6 +1,7 @@
 #include <stdio.h>
+#include <stdlib.h>
 
-int main() {
+int main1() {
 	
 	printf("Welcome to the game of TwentyFour Part Two!\n");
 	printf("Use each of the four numbers shown exactly once, \n");
@@ -22,6 +23,11 @@ int main() {
 
 	printf("\nThanks for playing!\n");
 	printf("Exiting...\n");
-	
+
+
+
+
+
 	return 0;
 }
+
