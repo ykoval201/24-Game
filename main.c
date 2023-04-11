@@ -40,8 +40,8 @@ int isNumsUsedOnce(const char *userAnswer, const int given[4]);//Checks if the u
 //Gameplay functions
 void welcomeMessage();//Prints the welcome message
 void difficultyMenu();//Prints the difficulty menu
-int playRound(int puzzle[]);//Plays a round of the game with the given puzzle
-int getPuzzle(const char *fileName);//Generates the numbers for the game
+int playRound(int* puzzle);//Plays a round of the game with the given puzzle
+int* getPuzzle(const char *fileName);//Generates the numbers for the game
 int afterRoundMenu();//Prints the menu after a round is finished that asks the user if they want to play again
 
 
@@ -54,29 +54,40 @@ int main() {
     char mediumFile[] = "medium.txt";
     char hardFile[] = "hard.txt";
 
-    welcomeMessage();
-    difficultyMenu();
+    int choice;
+    char difficulty = 'E';
 
-    char difficulty;
-    scanf(" %c", &difficulty);
+    do {
+        welcomeMessage();
+        difficultyMenu();
+        scanf(" %c", &difficulty);
+        getchar(); // Consume the newline character after the scanf
 
-    switch(difficulty) {
-        case 'E':
-            do{
-            playRound(getPuzzle(easyFile));
-            int choice = afterRoundMenu();
-            }while(choice == 1);
-            break;
-        case 'M':////Stopped here
-            playRound(getPuzzle(mediumFile));
-            break;
-        case 'H':
-            playRound(getPuzzle(hardFile));
-            break;
-        default:
-           
-            break;
-    }
+        switch(difficulty) {
+            case 'E':
+                choice = playRound(getPuzzle(easyFile));
+                break;
+            case 'M':
+                choice = playRound(getPuzzle(mediumFile));
+                break;
+            case 'H':
+                choice = playRound(getPuzzle(hardFile));
+                break;
+            default:
+                printf("Invalid choice, defaulting to easy difficulty.\n");
+                choice = playRound(getPuzzle(easyFile));
+                break;
+        }
+
+        if (choice == 1) {
+            continue;
+        } else if (choice == 0) {
+            choice = afterRoundMenu();
+        }
+
+    } while (choice == 1 || choice == 2);
+
+    printf("Thank you for playing! Goodbye!\n");
 
     return 0;
 }
@@ -311,7 +322,7 @@ void difficultyMenu() {
 }
 
 //get puzzle from file
-int getPuzzle(const char *fileName) {
+int* getPuzzle(const char *fileName) {
 
     //open file
     FILE *file = fopen(fileName, "r");
@@ -340,7 +351,7 @@ int getPuzzle(const char *fileName) {
     }
 
     int randomPuzzle = rand() % numberOfPossiblePuzzles;
-    char *randomPuzzleString = puzzle[randomPuzzle];
+    char *randomPuzzleString = puzzle[randomPuzzle]; //TODO Change return type to char* and do conversion to int in isNumsUsedOnce localy, not here.
 
     //store the numbers in the puzzle in an int array
     int given[4];
@@ -367,13 +378,13 @@ int getPuzzle(const char *fileName) {
     fclose(file);
 
     //return the puzzle
-    return given;
+    return *given;
 
 }
 
 //play the round with given puzzle
 //Return 1 if the user wins, 0 if the user loses
-int playRound(int given[]) {
+int playRound(int* given) {
 
     printf("Enter your solution: ");
     char *userAnswer = malloc(256);
@@ -414,3 +425,6 @@ int afterRoundMenu(){
     scanf("%d", &choice);
     return choice;
 }
+
+
+//TODO - given is empty when passed to playRound.
