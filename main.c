@@ -40,39 +40,43 @@ int isNumsUsedOnce(const char *userAnswer, const int given[4]);//Checks if the u
 //Gameplay functions
 void welcomeMessage();//Prints the welcome message
 void difficultyMenu();//Prints the difficulty menu
-void playGame(const char *fileName);//Plays the game
+int playRound(int puzzle[]);//Plays a round of the game with the given puzzle
+int getPuzzle(const char *fileName);//Generates the numbers for the game
+int afterRoundMenu();//Prints the menu after a round is finished that asks the user if they want to play again
 
 
 
 int main() {
 
+    srand(1);
+
     char easyFile[] = "easy.txt";
     char mediumFile[] = "medium.txt";
     char hardFile[] = "hard.txt";
 
-    srand(1);
     welcomeMessage();
     difficultyMenu();
-    char choice;
-    scanf("%c", &choice);
-    //'H' is for hard, 'M' is for medium, and 'E' is for easy
-    //Default is easy
-    //case sensitive
-    switch (choice) {
-        case 'H':
-            playGame(hardFile);
-            break;
-        case 'M':
-            playGame(mediumFile);
-            break;
+
+    char difficulty;
+    scanf(" %c", &difficulty);
+
+    switch(difficulty) {
         case 'E':
-            playGame(easyFile);
+            do{
+            playRound(getPuzzle(easyFile));
+            int choice = afterRoundMenu();
+            }while(choice == 1);
+            break;
+        case 'M':////Stopped here
+            playRound(getPuzzle(mediumFile));
+            break;
+        case 'H':
+            playRound(getPuzzle(hardFile));
             break;
         default:
-            playGame(easyFile);
+           
             break;
     }
-
 
     return 0;
 }
@@ -306,11 +310,14 @@ void difficultyMenu() {
     printf("Your choice --> \n");
 }
 
-//play the game
-void playGame(const char *fileName) {
+//get puzzle from file
+int getPuzzle(const char *fileName) {
 
     //open file
     FILE *file = fopen(fileName, "r");
+    char line[256];
+    int numberOfPossiblePuzzles = 0;
+
 
     //check if file exists
     if (file == NULL) {
@@ -318,14 +325,92 @@ void playGame(const char *fileName) {
         exit(1);
     }
 
-    //read file
-
-    int given[4];
-    while(fgets(line, sizeof(line), file) != NULL) {
-        sscanf(line, "%d %d %d %d", &given[0], &given[1], &given[2], &given[3]);
-
+    //read file and store each line in an array
+    while (fgets(line, sizeof(line), file)) {
+        numberOfPossiblePuzzles++;
     }
 
+    char *puzzle[numberOfPossiblePuzzles];
+    rewind(file);
+    int i = 0;
+    while (fgets(line, sizeof(line), file)) {
+        puzzle[i] = malloc(strlen(line) + 1);
+        strcpy(puzzle[i], line);
+        i++;
+    }
 
+    int randomPuzzle = rand() % numberOfPossiblePuzzles;
+    char *randomPuzzleString = puzzle[randomPuzzle];
 
+    //store the numbers in the puzzle in an int array
+    int given[4];
+    int j = 0;
+    for (int i = 0; randomPuzzleString[i] != '\0'; i++) {
+        if (isdigit(randomPuzzleString[i])) {
+            given[j] = randomPuzzleString[i] - '0';
+            j++;
+        }
+    }
+
+    //Print the puzzle in this format: "The numbers to use are: 4, 4, 8, 8."
+    printf("The numbers to use are: ");
+    for (int i = 0; i < 4; i++) {
+        printf("%d", given[i]);
+        if (i != 3) {
+            printf(", ");
+        }
+    }
+    printf(".\n");
+   
+
+    //close file
+    fclose(file);
+
+    //return the puzzle
+    return given;
+
+}
+
+//play the round with given puzzle
+//Return 1 if the user wins, 0 if the user loses
+int playRound(int given[]) {
+
+    printf("Enter your solution: ");
+    char *userAnswer = malloc(256);
+    fgets(userAnswer, 256, stdin);
+    userAnswer[strlen(userAnswer) - 1] = '\0';//remove the newline character
+
+    //check if the user entered a valid expression
+    if (!isValidExpression(userAnswer, given)) {
+        printf("Invalid expression.\n");
+        return 0;
+    }
+
+    //evaluate the user's expression
+    int result = evaluateExpression(userAnswer);
+
+    //Check if the user's answer is correct
+    if (result == 24) {
+        printf("Well done! You are a math genius.\n");
+        return 1;
+    } else {
+        printf("Sorry. Your solution did not evaluate to 24.\n");
+        return 0;
+    }
+
+}
+
+//After round is played prompt user to play again or quit
+/*Enter: 1 to play again,
+2 to change the difficulty level and then play again, or
+3 to exit the program.
+Your choice --> */
+int afterRoundMenu(){
+    printf("Enter: 1 to play again,\n");
+    printf("2 to change the difficulty level and then play again, or\n");
+    printf("3 to exit the program.\n");
+    printf("Your choice --> ");
+    int choice;
+    scanf("%d", &choice);
+    return choice;
 }
