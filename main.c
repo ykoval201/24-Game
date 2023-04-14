@@ -33,15 +33,15 @@ int evaluateExpression(const char *userAnswer);//Evaluates the expression
 
 //Utility functions
 int isOperator(char c);//Checks if a character is an operator
-int isValidExpression(const char *userAnswer, int given[4]);//Checks if the user-entered expression is valid
+int isValidExpression(const char *userAnswer, char* given);//Checks if the user-entered expression is valid
 int isValidSymbol(char c);//Checks if a character is a valid symbol
-int isNumsUsedOnce(const char *userAnswer, const int given[4]);//Checks if the user used each number exactly once
+int isNumsUsedOnce(const char *userAnswer, const char given[]);//Checks if the user used each number exactly once
 
 //Gameplay functions
 void welcomeMessage();//Prints the welcome message
 void difficultyMenu();//Prints the difficulty menu
-int playRound(int* puzzle);//Plays a round of the game with the given puzzle
-int* getPuzzle(const char *fileName);//Generates the numbers for the game
+int playRound(char *puzzle);//Plays a round of the game with the given puzzle
+char* getPuzzle(const char *fileName);//Generates the numbers for the game
 int afterRoundMenu();//Prints the menu after a round is finished that asks the user if they want to play again
 
 
@@ -54,40 +54,49 @@ int main() {
     char mediumFile[] = "medium.txt";
     char hardFile[] = "hard.txt";
 
-    int choice;
+    int choice = 2;
+    char* puzzle;
     char difficulty = 'E';
+    int round = 1;
+    welcomeMessage();
 
     do {
-        welcomeMessage();
-        difficultyMenu();
-        scanf(" %c", &difficulty);
-        getchar(); // Consume the newline character after the scanf
+        if(choice == 2) {
+            difficultyMenu();
+            scanf("%c%*c", &difficulty);
+        }
 
         switch(difficulty) {
             case 'E':
-                choice = playRound(getPuzzle(easyFile));
+                puzzle = getPuzzle(easyFile);
+                playRound(puzzle);
+                choice = afterRoundMenu();
+
                 break;
             case 'M':
-                choice = playRound(getPuzzle(mediumFile));
+                puzzle = getPuzzle(mediumFile);
+                playRound(puzzle);
+                choice = afterRoundMenu();
                 break;
             case 'H':
-                choice = playRound(getPuzzle(hardFile));
+                puzzle = getPuzzle(hardFile);
+                playRound(puzzle);
+                choice = afterRoundMenu();
                 break;
             default:
-                printf("Invalid choice, defaulting to easy difficulty.\n");
-                choice = playRound(getPuzzle(easyFile));
+               puzzle = getPuzzle(easyFile);
+                playRound(puzzle);
+                choice = afterRoundMenu();
                 break;
+
         }
 
-        if (choice == 1) {
-            continue;
-        } else if (choice == 0) {
-            choice = afterRoundMenu();
-        }
 
-    } while (choice == 1 || choice == 2);
 
-    printf("Thank you for playing! Goodbye!\n");
+    } while (choice != 3);
+
+    printf("\nThanks for playing!\n");
+    printf("Exiting...\n");
 
     return 0;
 }
@@ -110,7 +119,7 @@ void push(Stack *sPtr, char value) {
 //Pops(deletes) and returns a value off the stack
 char pop(Stack *sPtr) {
     if (isEmpty(*sPtr)) {
-        printf("Stack is empty.\n");
+        //printf("Stack is empty.\n");
         return '\0';
     }
     else {
@@ -130,7 +139,7 @@ int isEmpty(Stack s) {
 //Peeks at the top of the stack without popping(deleting) it
 char peek(Stack s) {
     if (isEmpty(s)) {
-        printf("Stack is empty.\n");
+        //printf("Stack is empty.\n");
         return '\0';
     }
     else {
@@ -141,7 +150,7 @@ char peek(Stack s) {
 //deallocates the stack
 void clearStack(Stack *sPtr) {
     if (isEmpty(*sPtr)) {
-        printf("Stack is empty.\n");
+        //printf("Stack is empty.\n");
     }
     else {
         StackNode *tempPtr;
@@ -208,15 +217,19 @@ int evaluateExpression(const char *userAnswer) {
             int operand1 = pop(sPtr);
             switch (postfix_expression[i]) {
                 case '+':
+                    printf("%d + %d = %d.\n", operand1, operand2, operand1 + operand2);
                     push(sPtr, operand1 + operand2);
                     break;
                 case '-':
+                    printf("%d - %d = %d.\n", operand1, operand2, operand1 - operand2);
                     push(sPtr, operand1 - operand2);
                     break;
                 case '*':
+                    printf("%d * %d = %d.\n", operand1, operand2, operand1 * operand2);
                     push(sPtr, operand1 * operand2);
                     break;
                 case '/':
+                    printf("%d / %d = %d.\n", operand1, operand2, operand1 / operand2);
                     push(sPtr, operand1 / operand2);
                     break;
             }
@@ -236,7 +249,7 @@ int isOperator(char c) {
 }
 
 //Checks if the user-entered expression is valid
-int isValidExpression(const char *userAnswer, int given[4]) {
+int isValidExpression(const char *userAnswer, char* given) {
     int i = 0;
     int numOpenParentheses = 0;
     int numCloseParentheses = 0;
@@ -278,14 +291,14 @@ int isValidSymbol(char c) {
 }
 
 //Checks if the numbers are used only once
-int isNumsUsedOnce(const char *userAnswer, const int given[4]){
+int isNumsUsedOnce(const char *userAnswer, const char given[]){
 
     int num_count[10] = {0}; // Initialize an array for counting the occurrences of each digit (0-9)
     int given_num_count[10] = {0}; // Initialize an array for counting the occurrences of each given number
 
     // Count the occurrences of each given number
     for (int i = 0; i < 4; i++) {
-        given_num_count[given[i]]++;
+        given_num_count[given[i] - '0']++;
     }
 
     // Count the occurrences of each digit in the userAnswer
@@ -318,11 +331,11 @@ void welcomeMessage() {
 //display difficulty menu
 void difficultyMenu() {
     printf("Choose your difficulty level: E for easy, M for medium, and H for hard (default is easy).\n");
-    printf("Your choice --> \n");
+    printf("Your choice --> ");
 }
 
 //get puzzle from file
-int* getPuzzle(const char *fileName) {
+char* getPuzzle(const char *fileName) {
 
     //open file
     FILE *file = fopen(fileName, "r");
@@ -351,22 +364,35 @@ int* getPuzzle(const char *fileName) {
     }
 
     int randomPuzzle = rand() % numberOfPossiblePuzzles;
-    char *randomPuzzleString = puzzle[randomPuzzle]; //TODO Change return type to char* and do conversion to int in isNumsUsedOnce localy, not here.
+    char *randomPuzzleString = puzzle[randomPuzzle];
 
-    //store the numbers in the puzzle in an int array
-    int given[4];
+
+    //remove whitespaces from the puzzle
+    char* puzzle2 = malloc(4);
     int j = 0;
-    for (int i = 0; randomPuzzleString[i] != '\0'; i++) {
-        if (isdigit(randomPuzzleString[i])) {
-            given[j] = randomPuzzleString[i] - '0';
-            j++;
+    for (int i = 0; i < strlen(randomPuzzleString); i++) {
+        //check that the character is a number
+        if (isdigit(randomPuzzleString[i]) != 0) {
+            //check that the number is not a whitespace
+            if (randomPuzzleString[i] != ' ') {
+                //add the number to the puzzle
+                puzzle2[j] = randomPuzzleString[i];
+                j++;
+            }
         }
     }
+
+    //Resize the puzzle string to 4 characters and copy the puzzle2 string to it
+    free(randomPuzzleString);
+    randomPuzzleString = puzzle2;
+
+
+
 
     //Print the puzzle in this format: "The numbers to use are: 4, 4, 8, 8."
     printf("The numbers to use are: ");
     for (int i = 0; i < 4; i++) {
-        printf("%d", given[i]);
+        printf("%c", randomPuzzleString[i]);
         if (i != 3) {
             printf(", ");
         }
@@ -378,21 +404,22 @@ int* getPuzzle(const char *fileName) {
     fclose(file);
 
     //return the puzzle
-    return *given;
+    return randomPuzzleString;
 
 }
 
 //play the round with given puzzle
 //Return 1 if the user wins, 0 if the user loses
-int playRound(int* given) {
+int playRound(char* puzzle) {
 
     printf("Enter your solution: ");
+
     char *userAnswer = malloc(256);
     fgets(userAnswer, 256, stdin);
-    userAnswer[strlen(userAnswer) - 1] = '\0';//remove the newline character
+    userAnswer[strcspn(userAnswer, "\n")] = '\0'; // remove the newline character
 
     //check if the user entered a valid expression
-    if (!isValidExpression(userAnswer, given)) {
+    if (!isValidExpression(userAnswer, puzzle)) {
         printf("Invalid expression.\n");
         return 0;
     }
@@ -402,29 +429,31 @@ int playRound(int* given) {
 
     //Check if the user's answer is correct
     if (result == 24) {
-        printf("Well done! You are a math genius.\n");
-        return 1;
+        printf("Well done! You are a math genius.\n\n");
     } else {
         printf("Sorry. Your solution did not evaluate to 24.\n");
-        return 0;
     }
 
+    free(userAnswer); // release the memory allocated by malloc
+    return (result == 24);
 }
 
+
+
 //After round is played prompt user to play again or quit
-/*Enter: 1 to play again,
-2 to change the difficulty level and then play again, or
-3 to exit the program.
+//in this format:
+/*Enter:    1 to play again,
+            2 to change the difficulty level and then play again, or
+            3 to exit the program.
 Your choice --> */
 int afterRoundMenu(){
-    printf("Enter: 1 to play again,\n");
-    printf("2 to change the difficulty level and then play again, or\n");
-    printf("3 to exit the program.\n");
+    printf("Enter:    1 to play again,\n");
+    printf("          2 to change the difficulty level and then play again, or\n");
+    printf("          3 to exit the program.\n");
     printf("Your choice --> ");
     int choice;
-    scanf("%d", &choice);
+    scanf("%d%*c", &choice);
     return choice;
 }
 
 
-//TODO - given is empty when passed to playRound.
