@@ -89,6 +89,7 @@ int main() {
             case 'E':
                 puzzle = getPuzzle(easyFile);
                 choice = playRound(puzzle);
+                free(puzzle);
                 if(choice != 0){
                     choice = afterRoundMenu();
                 }
@@ -96,6 +97,7 @@ int main() {
             case 'M':
                 puzzle = getPuzzle(mediumFile);
                 choice = playRound(puzzle);
+                free(puzzle);
                 if(choice != 0){
                     choice = afterRoundMenu();
                 }
@@ -103,6 +105,7 @@ int main() {
             case 'H':
                 puzzle = getPuzzle(hardFile);
                 choice = playRound(puzzle);
+                free(puzzle);
                 if(choice != 0){
                     choice = afterRoundMenu();
                 }
@@ -110,6 +113,7 @@ int main() {
             default:
                puzzle = getPuzzle(easyFile);
                 choice = playRound(puzzle);
+                free(puzzle);
                 if(choice != 0){
                     choice = afterRoundMenu();
                 }
@@ -122,10 +126,6 @@ int main() {
     } while (choice != 3);
 
     printf("\nThanks for playing!\n");
-
-    //release memory
-    free(puzzle);
-
     printf("Exiting...\n");
 
     return 0;
@@ -179,17 +179,10 @@ char peek(Stack s) {
 
 //deallocates the stack
 void clearStack(Stack *sPtr) {
-    if (isEmpty(*sPtr)) {
-        //printf("Stack is empty.\n");
+    while(!isEmpty(*sPtr)) {
+        pop(sPtr);
     }
-    else {
-        StackNode *tempPtr;
-        while (sPtr->topPtr != NULL) {
-            tempPtr = sPtr->topPtr;
-            sPtr->topPtr = tempPtr->nextPtr;
-            free(tempPtr);
-        }
-    }
+
 }
 
 //Converts a user-entered expression to an expression that can be evaluated
@@ -197,6 +190,7 @@ void clearStack(Stack *sPtr) {
 char* convertString(const char* infix_expression) {
     Stack* sPtr = createStack();
     char* postfix_expression = malloc(sizeof(char) * 100);
+    memset(postfix_expression, '\0', sizeof(char) * 100);
     int i = 0;
     int j = 0;
     while (infix_expression[i] != '\0') {
@@ -419,7 +413,8 @@ char* getPuzzle(const char *fileName) {
     strcpy(randomPuzzleString, puzzle[randomPuzzle]);
 
     //remove whitespaces from the puzzle
-    char* puzzle2 = malloc(strlen(randomPuzzleString) + 1);
+    //char* puzzle2 = malloc(strlen(randomPuzzleString) + 1);
+    char puzzle2[strlen(randomPuzzleString) + 1];
     int j = 0;
     for (int i = 0; i < strlen(randomPuzzleString); i++) {
         //check that the character is a number
@@ -450,12 +445,15 @@ char* getPuzzle(const char *fileName) {
     //loop through the puzzle array and free the memory
     for (int i = 0; i < numberOfPossiblePuzzles; i++) {
         free(puzzle[i]);
+
     }
-
     free(puzzle);
+    //free(puzzle);
+    fclose(file);
 
-    //return the puzzle by value
-    return puzzle2;
+    char* puzzle3 = malloc(strlen(puzzle2) + 1);
+    strcpy(puzzle3, puzzle2);
+    return puzzle3;
 
 }
 
@@ -465,9 +463,13 @@ int playRound(char* puzzle) {
 
     printf("Enter your solution: ");
 
-    char *userAnswer = malloc(256);
+    //char *userAnswer = malloc(256);
+    char userAnswer[256];
     fgets(userAnswer, 256, stdin);
     userAnswer[strcspn(userAnswer, "\n")] = '\0'; // remove the newline character
+
+
+
 
     //check if the user entered a valid expression
     int isValid = isValidExpression(userAnswer, puzzle);
@@ -490,7 +492,6 @@ int playRound(char* puzzle) {
         return result;
     }
 
-    free(userAnswer); // release the memory allocated by malloc
     return (result == 24);
 }
 
