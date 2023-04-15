@@ -46,13 +46,13 @@ int afterRoundMenu();//Prints the menu after a round is finished that asks the u
 int precedence(char op) {
     switch (op) {
         case '+':
+            return 1;
         case '-':
             return 1;
         case '*':
+            return 2;
         case '/':
             return 2;
-        case '^':
-            return 3;
         default:
             return -1;  // Invalid operator
     }
@@ -83,24 +83,31 @@ int main() {
         switch(difficulty) {
             case 'E':
                 puzzle = getPuzzle(easyFile);
-                playRound(puzzle);
-                choice = afterRoundMenu();
-
+                choice = playRound(puzzle);
+                if(choice != 0){
+                    choice = afterRoundMenu();
+                }
                 break;
             case 'M':
                 puzzle = getPuzzle(mediumFile);
-                playRound(puzzle);
-                choice = afterRoundMenu();
+                choice = playRound(puzzle);
+                if(choice != 0){
+                    choice = afterRoundMenu();
+                }
                 break;
             case 'H':
                 puzzle = getPuzzle(hardFile);
-                playRound(puzzle);
-                choice = afterRoundMenu();
+                choice = playRound(puzzle);
+                if(choice != 0){
+                    choice = afterRoundMenu();
+                }
                 break;
             default:
                puzzle = getPuzzle(easyFile);
-                playRound(puzzle);
-                choice = afterRoundMenu();
+                choice = playRound(puzzle);
+                if(choice != 0){
+                    choice = afterRoundMenu();
+                }
                 break;
 
         }
@@ -178,7 +185,6 @@ void clearStack(Stack *sPtr) {
 
 //Converts a user-entered expression to an expression that can be evaluated
 //Is called from inside the evaluateExpression function
-//with correct precedence
 char* convertString(const char* infix_expression) {
     Stack* sPtr = createStack();
     char* postfix_expression = malloc(sizeof(char) * 100);
@@ -194,6 +200,9 @@ char* convertString(const char* infix_expression) {
             while (peek(*sPtr) != '(') {
                 postfix_expression[j] = pop(sPtr);
                 j++;
+                if (j > strlen(postfix_expression)){
+                    break;
+                }
             }
             pop(sPtr);
         } else if (isOperator(infix_expression[i])) {
@@ -283,17 +292,37 @@ int isValidExpression(const char *userAnswer, char* given) {
             numOperands++;
         }
         else if (!isValidSymbol(userAnswer[i])) {
+            printf("Error! Invalid symbol entered. Please try again.\n\n");
             return 0;
         }
         i++;
     }
     if (numOpenParentheses != numCloseParentheses) {
-        return 0;
+        if(numOpenParentheses > numCloseParentheses) {
+            evaluateExpression(userAnswer);
+            printf("Error! Too many opening parentheses in the expression.\n\n");
+        }
+        else {
+            evaluateExpression(userAnswer);
+            printf("Error! Too many closing parentheses in the expression.\n\n");
+
+        }
+        return 4;
     }
     if (numOperators != numOperands - 1) {
+        if(numOperators > numOperands - 1) {
+            printf("Error! Too many operators in the expression.\n\n");
+            return 0;
+        }
+        else {
+            evaluateExpression(userAnswer);
+            printf("Error! Too many values in the expression.\n\n");
+            return 4;
+        }
         return 0;
     }
     if(!isNumsUsedOnce(userAnswer, given)){
+        printf("Error! You must use all four numbers, and use each one only once. Please try again.\n\n");
         return 0;
     }
     return 1;
@@ -433,9 +462,13 @@ int playRound(char* puzzle) {
     userAnswer[strcspn(userAnswer, "\n")] = '\0'; // remove the newline character
 
     //check if the user entered a valid expression
-    if (!isValidExpression(userAnswer, puzzle)) {
-        printf("Invalid expression.\n");
+    int isValid = isValidExpression(userAnswer, puzzle);
+    if (!isValid) {
+        //printf("Invalid expression.\n");
         return 0;
+    }
+    else if(isValid == 4){
+        return 4;
     }
 
     //evaluate the user's expression
@@ -446,6 +479,7 @@ int playRound(char* puzzle) {
         printf("Well done! You are a math genius.\n\n");
     } else {
         printf("Sorry. Your solution did not evaluate to 24.\n");
+        return result;
     }
 
     free(userAnswer); // release the memory allocated by malloc
@@ -471,3 +505,18 @@ int afterRoundMenu(){
 }
 
 
+/*** Test Input:
+m
+4 + 4 + 4 + 4
+3 ^ 4 + 3 + 3
+5 - 5 + (7 * 7))
+1
+8 + 4 + 8 * 1
+(3 +4) (5/5)
+1
+(4 - 4)  (8 8)
+1
+((((( 1 + 3))) * (4-3)))
+1
+(9*2/1) + 6
+3*/
