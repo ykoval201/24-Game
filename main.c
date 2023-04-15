@@ -1,3 +1,8 @@
+//Author:  Yurii Koval
+//Date:    04-14-2023
+//Course:  CS211
+//System:  Linux(ubuntu)
+//IDE: Clion
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -117,6 +122,10 @@ int main() {
     } while (choice != 3);
 
     printf("\nThanks for playing!\n");
+
+    //release memory
+    free(puzzle);
+
     printf("Exiting...\n");
 
     return 0;
@@ -385,7 +394,6 @@ char* getPuzzle(const char *fileName) {
     char line[256];
     int numberOfPossiblePuzzles = 0;
 
-
     //check if file exists
     if (file == NULL) {
         printf("File does not exist.\n");
@@ -397,7 +405,7 @@ char* getPuzzle(const char *fileName) {
         numberOfPossiblePuzzles++;
     }
 
-    char *puzzle[numberOfPossiblePuzzles];
+    char **puzzle = malloc(numberOfPossiblePuzzles * sizeof(char*));
     rewind(file);
     int i = 0;
     while (fgets(line, sizeof(line), file)) {
@@ -407,11 +415,11 @@ char* getPuzzle(const char *fileName) {
     }
 
     int randomPuzzle = rand() % numberOfPossiblePuzzles;
-    char *randomPuzzleString = puzzle[randomPuzzle];
-
+    char *randomPuzzleString = malloc(strlen(puzzle[randomPuzzle]) + 1);
+    strcpy(randomPuzzleString, puzzle[randomPuzzle]);
 
     //remove whitespaces from the puzzle
-    char* puzzle2 = malloc(4);
+    char* puzzle2 = malloc(strlen(randomPuzzleString) + 1);
     int j = 0;
     for (int i = 0; i < strlen(randomPuzzleString); i++) {
         //check that the character is a number
@@ -424,30 +432,30 @@ char* getPuzzle(const char *fileName) {
             }
         }
     }
+    puzzle2[4] = '\0';
 
-    //Resize the puzzle string to 4 characters and copy the puzzle2 string to it
     free(randomPuzzleString);
-    randomPuzzleString = puzzle2;
-
-
 
 
     //Print the puzzle in this format: "The numbers to use are: 4, 4, 8, 8."
     printf("The numbers to use are: ");
     for (int i = 0; i < 4; i++) {
-        printf("%c", randomPuzzleString[i]);
+        printf("%c", puzzle2[i]);
         if (i != 3) {
             printf(", ");
         }
     }
     printf(".\n");
-   
 
-    //close file
-    fclose(file);
+    //loop through the puzzle array and free the memory
+    for (int i = 0; i < numberOfPossiblePuzzles; i++) {
+        free(puzzle[i]);
+    }
 
-    //return the puzzle
-    return randomPuzzleString;
+    free(puzzle);
+
+    //return the puzzle by value
+    return puzzle2;
 
 }
 
