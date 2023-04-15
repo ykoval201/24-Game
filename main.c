@@ -43,6 +43,20 @@ void difficultyMenu();//Prints the difficulty menu
 int playRound(char *puzzle);//Plays a round of the game with the given puzzle
 char* getPuzzle(const char *fileName);//Generates the numbers for the game
 int afterRoundMenu();//Prints the menu after a round is finished that asks the user if they want to play again
+int precedence(char op) {
+    switch (op) {
+        case '+':
+        case '-':
+            return 1;
+        case '*':
+        case '/':
+            return 2;
+        case '^':
+            return 3;
+        default:
+            return -1;  // Invalid operator
+    }
+}
 
 
 
@@ -164,28 +178,27 @@ void clearStack(Stack *sPtr) {
 
 //Converts a user-entered expression to an expression that can be evaluated
 //Is called from inside the evaluateExpression function
-char *convertString(const char *infix_expression) {
-    Stack *sPtr = createStack();
-    char *postfix_expression = malloc(sizeof(char) * 100);
+//with correct precedence
+char* convertString(const char* infix_expression) {
+    Stack* sPtr = createStack();
+    char* postfix_expression = malloc(sizeof(char) * 100);
     int i = 0;
     int j = 0;
     while (infix_expression[i] != '\0') {
         if (isdigit(infix_expression[i])) {
             postfix_expression[j] = infix_expression[i];
             j++;
-        }
-        else if (infix_expression[i] == '(') {
+        } else if (infix_expression[i] == '(') {
             push(sPtr, infix_expression[i]);
-        }
-        else if (infix_expression[i] == ')') {
+        } else if (infix_expression[i] == ')') {
             while (peek(*sPtr) != '(') {
                 postfix_expression[j] = pop(sPtr);
                 j++;
             }
             pop(sPtr);
-        }
-        else if (isOperator(infix_expression[i])) {
-            while (!isEmpty(*sPtr) && peek(*sPtr) != '(' && infix_expression[i] <= peek(*sPtr)) {
+        } else if (isOperator(infix_expression[i])) {
+            while (!isEmpty(*sPtr) && peek(*sPtr) != '(' &&
+                   precedence(infix_expression[i]) <= precedence(peek(*sPtr))) {
                 postfix_expression[j] = pop(sPtr);
                 j++;
             }
@@ -202,6 +215,7 @@ char *convertString(const char *infix_expression) {
     free(sPtr);
     return postfix_expression;
 }
+
 
 //Evaluates the expression
 int evaluateExpression(const char *userAnswer) {
