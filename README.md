@@ -1,4 +1,3 @@
-+++
 # C Program for a Mathematical Puzzle Game: Achieve 24
 
 ## Overview
