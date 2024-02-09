@@ -1,4 +1,4 @@
-# C Program for a Mathematical Puzzle Game: Achieve 24
+# C Program for a Mathematical Puzzle Game: 24
 
 ## Overview
 This C program is designed as a console-based game that challenges players to apply basic mathematical operations (+, -, *, /) to combine four numbers and reach the target number of 24. The game aims to be both educational and entertaining, enhancing the player's mental arithmetic capabilities. It incorporates various difficulty levels, employs a stack-based approach for expression evaluation, and ensures user input is valid.
