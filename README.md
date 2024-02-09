@@ -1,16 +1,29 @@
-Overview
++++
+# C Program for a Mathematical Puzzle Game: Achieve 24
 
-This C program is a console-based game that challenges players to use basic mathematical operations (+, -, *, /) to combine four numbers and achieve a result of 24. The game is designed to be both educational and entertaining, aiming to improve the player's mental arithmetic skills. The program features different difficulty levels, a stack-based expression evaluator, and the ability to check the validity of user input.
-How to Play
+## Overview
+This C program is designed as a console-based game that challenges players to apply basic mathematical operations (+, -, *, /) to combine four numbers and reach the target number of 24. The game aims to be both educational and entertaining, enhancing the player's mental arithmetic capabilities. It incorporates various difficulty levels, employs a stack-based approach for expression evaluation, and ensures user input is valid.
 
-Upon starting the game, players are greeted with a welcome message and a prompt to choose a difficulty level (Easy, Medium, or Hard). The game then presents the player with four numbers. The player's task is to use each of these numbers exactly once, along with any combination of the four basic mathematical operations, to create an expression that evaluates to 24.
+## How to Play
 
-For example, given the numbers 4, 4, 8, 8, a valid solution could be (8 / (4 - (8 / 4))).
+- **Starting the Game**: Upon launch, the game welcomes players and asks them to select a difficulty level: Easy, Medium, or Hard.
+- **Gameplay**: Four numbers are presented to the player. The objective is to use each number exactly once, along with any combination of the four basic operations, to form an expression that equals 24.
+    - *Example*: For the numbers 4, 4, 8, 8, a possible solution is `(8 / (4 - (8 / 4)))`.
+- **Evaluation**: After the player submits their solution, the game evaluates the expression. A correct solution (evaluating to 24) wins the round; otherwise, the player is encouraged to try again or adjust the difficulty.
 
-After submitting a solution, the game evaluates the expression. If the result is 24, the player wins the round; otherwise, they are prompted to try again or change the difficulty level.
-Key Features
+## Key Features
 
-    Stack-Based Expression Evaluation: The program uses stacks to convert user-entered infix expressions to postfix notation and then evaluates them. This approach simplifies the handling of operator precedence and parentheses.
-    Difficulty Levels: The game can load puzzles from different files based on the selected difficulty level, making it accessible to players of various skill levels.
-    Input Validation: The program checks if the player's input is a valid expression and if each of the provided numbers is used exactly once.
-    Replayability: After each round, players can choose to play again, change the difficulty level, or exit the program.
+- **Stack-Based Expression Evaluation**: Utilizes stacks to convert infix expressions input by the user into postfix notation for evaluation, facilitating the handling of operator precedence and parentheses.
+- **Difficulty Levels**: Offers puzzles of varying complexity, sourced from different files based on the chosen difficulty level, catering to a wide range of skill levels.
+- **Input Validation**: Checks for the validity of the player's expression and ensures each provided number is used exactly once.
+- **Replayability**: Players have the option to replay, switch difficulty levels, or exit after each round.
+
+## Concepts Used
+
+- **Dynamic Memory Allocation**: Demonstrates the use of `malloc` and `free` for allocating and deallocating memory for stacks, nodes, and puzzle data dynamically.
+- **Data Structures**: Implements a custom stack data structure essential for the conversion and evaluation of mathematical expressions.
+- **File I/O**: Incorporates basic file input/output operations to read puzzles from text files, highlighting file handling techniques.
+- **String Manipulation**: Features functions for processing and validating strings, particularly user input expressions, emphasizing string handling capabilities.
+
+This program is a comprehensive application of C programming concepts, including dynamic memory management, data structures, file I/O, and string manipulation, packaged within an interactive and educational game framework.
++++
